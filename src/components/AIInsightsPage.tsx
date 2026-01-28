@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TrendingUp, AlertTriangle, Target, Lightbulb, Loader2 } from 'lucide-react';
 
 // Tipe data dari Backend
@@ -19,7 +19,11 @@ const AIInsightsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/insights')
+    // 1. Definisikan URL secara dinamis (Cek Vercel env dulu, baru fallback ke HF)
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://riiisss-finsight-backend.hf.space';
+
+    // 2. Gunakan apiUrl di sini (Pastikan endpoint /api/insights sudah ada di app.py)
+    fetch(`${apiUrl}/api/insights`)
       .then(res => res.json())
       .then(result => {
         setData(result);
@@ -40,18 +44,17 @@ const AIInsightsPage: React.FC = () => {
     );
   }
 
-  // Jika data kosong atau error
-  if (!data) return <div>Data tidak tersedia.</div>;
+  if (!data) return <div className="p-8 text-center text-gray-500">Data insight belum tersedia.</div>;
 
   return (
     <div className="space-y-6">
+      {/* Konten UI tetap sama seperti kodinganmu sebelumnya */}
       <div>
         <h2 className="text-2xl font-bold text-gray-800">AI Financial Insights</h2>
         <p className="text-gray-500">Analisa mendalam kesehatan finansialmu oleh Gemini 2.5.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Health Score */}
         <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-6 text-white shadow-lg relative overflow-hidden">
           <div className="relative z-10 flex justify-between items-start">
             <div>
@@ -76,7 +79,6 @@ const AIInsightsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Savings Potential */}
         <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
@@ -95,7 +97,6 @@ const AIInsightsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Recommendations List */}
       <h3 className="font-bold text-gray-800 text-lg">Saran Auditor AI</h3>
       <div className="space-y-4">
         {data.recommendations.map((item, idx) => (
@@ -106,7 +107,7 @@ const AIInsightsPage: React.FC = () => {
               item.type === 'warning' ? 'bg-amber-100' : 'bg-blue-100'
             }`}>
               {item.type === 'warning' ? (
-                <AlertTriangle className={`h-5 w-5 ${item.type === 'warning' ? 'text-amber-600' : 'text-blue-600'}`} />
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
               ) : (
                 <Lightbulb className="h-5 w-5 text-blue-600" />
               )}

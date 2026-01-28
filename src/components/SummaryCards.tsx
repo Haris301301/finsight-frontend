@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Wallet, TrendingUp, Receipt, Loader2 } from 'lucide-react';
 
 const SummaryCards: React.FC = () => {
@@ -10,25 +10,32 @@ const SummaryCards: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Panggil API Backend
-    fetch('http://127.0.0.1:5000/api/dashboard')
+    // 1. Ambil URL secara dinamis dari Environment Variable Vercel
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://riiisss-finsight-backend.hf.space';
+
+    // 2. Ganti fetch agar tidak menembak ke 127.0.0.1 lagi
+    fetch(`${apiUrl}/api/dashboard`)
       .then(res => res.json())
       .then(result => {
         setData({
-          total_spending: result.total_spending,
-          items_scanned: result.items_scanned,
-          most_expensive_category: "Food & Beverage" // Sementara kita hardcode kategori ini
+          total_spending: result.total_spending || 0,
+          items_scanned: result.items_scanned || 0,
+          most_expensive_category: "Food & Beverage" 
         });
         setLoading(false);
       })
       .catch(err => {
-        console.error("Gagal ambil data:", err);
+        console.error("Gagal ambil data summary:", err);
         setLoading(false);
       });
   }, []);
 
   if (loading) {
-    return <div className="p-10 text-center text-gray-400 flex justify-center"><Loader2 className="animate-spin" /></div>;
+    return (
+      <div className="p-10 text-center text-gray-400 flex justify-center">
+        <Loader2 className="animate-spin text-emerald-600" />
+      </div>
+    );
   }
 
   return (
@@ -47,7 +54,7 @@ const SummaryCards: React.FC = () => {
         </h3>
       </div>
 
-      {/* CARD 2: KATEGORI (STATIC DULU) */}
+      {/* CARD 2: TOP CATEGORY */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
           <div className="p-3 bg-emerald-50 rounded-xl">
@@ -59,7 +66,7 @@ const SummaryCards: React.FC = () => {
         <p className="text-xs text-gray-400 mt-1">Based on recent scans</p>
       </div>
 
-      {/* CARD 3: JUMLAH STRUK (LIVE) */}
+      {/* CARD 3: RECEIPTS SCANNED (LIVE) */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
           <div className="p-3 bg-orange-50 rounded-xl">

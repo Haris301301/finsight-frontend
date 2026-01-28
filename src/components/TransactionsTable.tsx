@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ShoppingBag, Coffee, Zap, MoreHorizontal, ArrowRight } from 'lucide-react';
 
 interface Transaction {
   id: number;
-  merchant_name: string; // Sesuaikan dengan key JSON di Python
-  merchant?: string;     // Handle legacy key
+  merchant_name: string;
+  merchant?: string;
   category: string;
   date: string;
   amount: number;
-  total_amount?: number; // Handle key dari AI
+  total_amount?: number;
   status?: string;
 }
 
@@ -16,24 +16,26 @@ const TransactionsTable: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    // Panggil data dari Backend Python
-    fetch('http://127.0.0.1:5000/api/dashboard')
+    // 1. Definisikan URL secara dinamis (Cek Vercel env dulu, baru fallback ke HF)
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://riiisss-finsight-backend.hf.space';
+
+    // 2. Ganti fetch agar tidak menembak ke 127.0.0.1 lagi
+    fetch(`${apiUrl}/api/dashboard`)
       .then(res => res.json())
       .then(result => {
         // Ambil array recent_transactions dari response
-        setTransactions(result.recent_transactions);
+        setTransactions(result.recent_transactions || []);
       })
       .catch(err => console.error("Error fetching transactions:", err));
   }, []);
 
-  // Helper untuk memilih icon berdasarkan kategori
+  // Helper untuk memilih icon dan warna tetap sama seperti kodinganmu
   const getIcon = (category: string) => {
     if (category?.toLowerCase().includes('food')) return <Coffee className="h-4 w-4 text-orange-600" />;
     if (category?.toLowerCase().includes('util')) return <Zap className="h-4 w-4 text-yellow-600" />;
     return <ShoppingBag className="h-4 w-4 text-blue-600" />;
   };
 
-  // Helper untuk warna background icon
   const getBgColor = (category: string) => {
     if (category?.toLowerCase().includes('food')) return 'bg-orange-100';
     if (category?.toLowerCase().includes('util')) return 'bg-yellow-100';
@@ -76,7 +78,6 @@ const TransactionsTable: React.FC = () => {
                         {getIcon(tx.category)}
                       </div>
                       <div>
-                        {/* Handle nama toko: kadang 'merchant', kadang 'merchant_name' */}
                         <p className="font-bold text-gray-900 text-sm">{tx.merchant_name || tx.merchant}</p>
                         <p className="text-xs text-gray-500">Payment via QRIS</p>
                       </div>
@@ -91,7 +92,6 @@ const TransactionsTable: React.FC = () => {
                     {tx.date}
                   </td>
                   <td className="px-6 py-4 text-right font-bold text-gray-900">
-                    {/* Handle amount: kadang 'amount', kadang 'total_amount' */}
                     - Rp {(tx.total_amount || tx.amount)?.toLocaleString('id-ID')}
                   </td>
                   <td className="px-6 py-4 text-center">

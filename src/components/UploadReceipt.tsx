@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-// PERBAIKAN 1: Kita definisikan tipe datanya, jangan pakai 'any'
 interface ReceiptData {
   merchant_name: string;
   total_amount: number;
@@ -12,7 +11,6 @@ interface ReceiptData {
 
 const UploadReceipt: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
-  // PERBAIKAN 2: Kita pasang tipe datanya di sini
   const [scanResult, setScanResult] = useState<ReceiptData | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -28,7 +26,11 @@ const UploadReceipt: React.FC = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/scan-receipt', {
+      // 1. Ambil URL secara dinamis dari Environment Variable Vercel
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://riiisss-finsight-backend.hf.space';
+
+      // 2. Gunakan apiUrl agar bisa jalan di server publik
+      const response = await fetch(`${apiUrl}/api/scan-receipt`, {
         method: 'POST',
         body: formData,
       });
@@ -41,9 +43,8 @@ const UploadReceipt: React.FC = () => {
         setErrorMsg(result.error || "Gagal memproses gambar");
       }
     } catch (err) {
-      // PERBAIKAN 3: Kita pakai variabel 'err' untuk logging
       console.error("Upload Error:", err);
-      setErrorMsg("Error koneksi ke server. Pastikan backend nyala.");
+      setErrorMsg("Error koneksi ke server. Pastikan backend di Hugging Face statusnya 'Running'.");
     } finally {
       setIsUploading(false);
     }
@@ -51,6 +52,7 @@ const UploadReceipt: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Konten UI tetap sama persis seperti kodinganmu sebelumnya */}
       <div>
         <h2 className="text-2xl font-bold text-gray-800">Upload Receipt (AI Vision)</h2>
         <p className="text-gray-500">Upload foto struk belanja, biarkan AI mengekstrak datanya.</p>
