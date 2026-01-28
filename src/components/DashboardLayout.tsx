@@ -1,3 +1,4 @@
+import { useState } from 'react'; // WAJIB ADA
 import Sidebar from './Sidebar';
 import Header from './Header';
 import SummaryCards from './SummaryCards';
@@ -6,9 +7,13 @@ import TransactionsTable from './TransactionsTable';
 import AIChatSidebar from './AIChatSidebar';
 
 const DashboardLayout = () => {
+  // Definisikan state agar Sidebar tidak error lagi
+  const [activePage, setActivePage] = useState('dashboard');
+
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      {/* Kasih data yang diminta Sidebar di sini */}
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
 
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-7xl mx-auto p-8">

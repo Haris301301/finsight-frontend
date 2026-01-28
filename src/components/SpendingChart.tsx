@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+// 1. Perbaikan TS6133: Hapus 'React' karena tidak dipanggil secara eksplisit
+import { useEffect, useState } from 'react'; 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Definisi tipe data dari Backend supaya tidak error 'any'
 interface BackendTrendItem {
   name: string;
   amount: number;
 }
 
 const SpendingChart = () => {
-  // 1. Ganti data statis menjadi State
   const [data, setData] = useState([
     { week: 'Week 1', spending: 0 },
     { week: 'Week 2', spending: 0 },
@@ -16,13 +15,15 @@ const SpendingChart = () => {
     { week: 'Week 4', spending: 0 },
   ]);
 
-  // 2. Ambil data dari Backend Python
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/dashboard')
+    // 2. Gunakan Environment Variable atau Direct URL Hugging Face kamu
+    // Jangan gunakan 127.0.0.1 agar bisa jalan di Vercel
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://riiisss-finsight-backend.hf.space';
+
+    fetch(`${apiUrl}/api/dashboard`)
       .then(res => res.json())
       .then(result => {
         if (result.spending_trend) {
-          // Mapping data: Backend pakai 'name' & 'amount', Grafik kamu pakai 'week' & 'spending'
           const formattedData = result.spending_trend.map((item: BackendTrendItem) => ({
             week: item.name,
             spending: item.amount
@@ -73,7 +74,6 @@ const SpendingChart = () => {
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             }}
           />
-          {/* Style Bar tetap persis seperti punya kamu */}
           <Bar dataKey="spending" fill="#10b981" radius={[8, 8, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
